@@ -3,54 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KinoRadar — избранное</title>
-    <meta name="description" content="Проверяемый агрегатор рейтингов и цифровых релизов." />
+    <meta name="theme-color" content="#f5f5f7" />
+    <title>KinoRadar — рейтинги без догадок</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="page">
-      <header class="hero">
+    <main class="app-shell">
+      <nav class="topbar" aria-label="Основная навигация">
         <a class="brand" href="/">KinoRadar</a>
-        <p>Проверяемый агрегатор рейтингов и цифровых релизов</p>
-      </header>
-
-      <section class="panel" aria-labelledby="favorites-title">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Моя подборка</p>
-            <h1 id="favorites-title">Избранное</h1>
-          </div>
-          <span id="connection-status" class="status" role="status">Подключение…</span>
+        <div class="topbar-actions">
+          <button class="icon-button" type="button" aria-label="Поиск"><i class="ph ph-magnifying-glass"></i></button>
+          <button class="avatar" type="button" aria-label="Профиль">A</button>
         </div>
+      </nav>
 
-        <form id="favorite-form" class="add-form">
-          <label>
-            Название фильма или сериала
-            <input id="title" name="title" required maxlength="160" placeholder="Например, Dune: Part Two" />
-          </label>
-          <label>
-            Год
-            <input id="release-year" name="releaseYear" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="2024" />
-          </label>
-          <button type="submit">Добавить</button>
-        </form>
-
-        <p id="message" class="message" hidden></p>
-        <ul id="favorites-list" class="favorites-list" aria-live="polite"></ul>
-        <p id="empty-state" class="empty-state" hidden>В избранном пока пусто. Добавьте первый фильм.</p>
+      <section class="intro" aria-labelledby="movie-title">
+        <p class="eyebrow">Проверяемая карточка</p>
+        <h1 id="movie-title">Всё, что важно<br />о фильме — в одном месте.</h1>
+        <p class="intro-copy">Оценки критиков и зрителей, платформы и статус цифрового релиза — со ссылками на первоисточники.</p>
       </section>
-    </main>
 
-    <template id="favorite-template">
-      <li class="favorite-card">
-        <div>
-          <h2 class="favorite-title"></h2>
-          <p class="favorite-meta"></p>
+      <article class="movie-card" aria-labelledby="film-name">
+        <div class="poster-wrap">
+          <img class="poster" src="assets/desert-moon-poster.png" alt="Фантастический кинопостер с одиноким путешественником в пустыне" />
+          <span class="availability">В цифре</span>
         </div>
-        <button class="remove-button" type="button">Удалить</button>
-      </li>
-    </template>
 
+        <div class="movie-content">
+          <div class="title-row">
+            <div>
+              <p class="movie-type">Фильм · 2024 · 2 ч 46 мин</p>
+              <h2 id="film-name">Дюна: Часть вторая</h2>
+            </div>
+            <span class="verified" title="Данные проверены"><i class="ph ph-seal-check"></i></span>
+          </div>
+
+          <p class="synopsis">Пол Атрейдес объединяется с Чани и фрименами, чтобы остановить тех, кто разрушил его мир.</p>
+
+          <section class="rating-section" aria-labelledby="ratings-title">
+            <div class="section-heading">
+              <h3 id="ratings-title">Рейтинги</h3>
+              <span>Обновлено сегодня</span>
+            </div>
+            <div class="ratings-grid">
+              <a class="rating imdb" href="https://www.imdb.com/" target="_blank" rel="noreferrer">
+                <span>IMDb</span><strong>8,5</strong><small>зрители</small>
+              </a>
+              <a class="rating rt" href="https://www.rottentomatoes.com/" target="_blank" rel="noreferrer">
+                <span>Rotten Tomatoes</span><strong>92%</strong><small>критики</small>
+              </a>
+              <a class="rating meta" href="https://www.metacritic.com/" target="_blank" rel="noreferrer">
+                <span>Metacritic</span><strong>79</strong><small>критики</small>
+              </a>
+              <a class="rating kino" href="https://www.kinopoisk.ru/" target="_blank" rel="noreferrer">
+                <span>Кинопоиск</span><strong>8,3</strong><small>зрители</small>
+              </a>
+            </div>
+          </section>
+
+          <section class="release-card" aria-label="Цифровой релиз">
+            <span class="release-icon"><i class="ph ph-play-circle"></i></span>
+            <div>
+              <p>Цифровой релиз</p>
+              <strong>Доступен с 16 апреля 2024</strong>
+              <span>Apple TV · Prime Video · Кинопоиск</span>
+            </div>
+          </section>
+
+          <button id="favorite-button" class="save-button" type="button">
+            <i class="ph ph-bookmark-simple"></i><span>Сохранить в избранное</span>
+          </button>
+          <p id="message" class="message" role="status" aria-live="polite"></p>
+        </div>
+      </article>
+    </main>
     <script type="module" src="app.js"></script>
   </body>
 </html>
