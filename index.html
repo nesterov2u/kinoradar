@@ -14,73 +14,68 @@
   <body>
     <main class="app-shell">
       <nav class="topbar" aria-label="Основная навигация">
-        <a class="brand" href="/">KinoRadar</a>
-        <div class="topbar-actions">
-          <button class="icon-button" type="button" aria-label="Поиск"><i class="ph ph-magnifying-glass"></i></button>
-          <button class="avatar" type="button" aria-label="Профиль">A</button>
-        </div>
+        <button id="home-button" class="brand" type="button">KinoRadar</button>
+        <button id="favorites-button" class="favorites-button" type="button"><i class="ph ph-bookmark-simple" aria-hidden="true"></i>Избранное</button>
       </nav>
 
-      <section class="intro" aria-labelledby="movie-title">
-        <p class="eyebrow">Проверяемая карточка</p>
-        <h1 id="movie-title">Всё, что важно<br />о фильме — в одном месте.</h1>
-        <p class="intro-copy">Оценки критиков и зрителей, платформы и статус цифрового релиза — со ссылками на первоисточники.</p>
+      <section id="search-page" class="search-page" aria-labelledby="search-heading">
+        <div class="search-hero">
+          <h1 id="search-heading">Что посмотрим<br />сегодня?</h1>
+          <p>Найдите фильм или сериал — мы покажем рейтинги, источники и статус цифрового релиза.</p>
+        </div>
+
+        <form id="search-form" class="search-box" role="search">
+          <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+          <label class="sr-only" for="search-input">Название фильма или сериала</label>
+          <input id="search-input" type="search" autocomplete="off" placeholder="Название фильма или сериала" />
+          <button type="submit">Найти</button>
+        </form>
+
+        <section id="search-results" class="search-results" aria-live="polite" hidden>
+          <div class="results-heading"><h2>Результаты</h2><span id="results-count"></span></div>
+          <div id="results-list" class="results-list"></div>
+        </section>
       </section>
 
-      <article class="movie-card" aria-labelledby="film-name">
-        <div class="poster-wrap">
-          <img class="poster" src="assets/desert-moon-poster.png" alt="Фантастический кинопостер с одиноким путешественником в пустыне" />
-          <span class="availability">В цифре</span>
-        </div>
+      <section id="favorites-page" class="favorites-page" aria-labelledby="favorites-title" hidden>
+        <button id="favorites-back-button" class="back-button" type="button"><i class="ph ph-arrow-left"></i>Назад к поиску</button>
+        <div class="favorites-page-heading"><p>Ваша подборка</p><h1 id="favorites-title">Избранное</h1><span id="favorites-count"></span></div>
+        <div id="favorites-list" class="favorites-list"></div>
+        <p id="favorites-empty" class="favorites-empty">Сохраняйте фильмы и сериалы, чтобы быстро вернуться к ним.</p>
+      </section>
 
-        <div class="movie-content">
-          <div class="title-row">
-            <div>
-              <p class="movie-type">Фильм · 2024 · 2 ч 46 мин</p>
-              <h2 id="film-name">Дюна: Часть вторая</h2>
-            </div>
-            <span class="verified" title="Данные проверены"><i class="ph ph-seal-check"></i></span>
+      <section id="detail-page" class="detail-page" aria-labelledby="film-name" hidden>
+        <button id="back-button" class="back-button" type="button"><i class="ph ph-arrow-left"></i><span id="back-button-label">Назад к поиску</span></button>
+        <article class="movie-card">
+          <div class="poster-wrap">
+            <img class="poster" src="assets/desert-moon-poster.png" alt="Фантастический кинопостер с одиноким путешественником в пустыне" />
+            <span id="availability" class="availability">Проверяем</span>
           </div>
-
-          <p class="synopsis">Пол Атрейдес объединяется с Чани и фрименами, чтобы остановить тех, кто разрушил его мир.</p>
-
-          <section class="rating-section" aria-labelledby="ratings-title">
-            <div class="section-heading">
-              <h3 id="ratings-title">Рейтинги</h3>
-              <span>Обновлено сегодня</span>
-            </div>
-            <div class="ratings-grid">
-              <a class="rating imdb" href="https://www.imdb.com/" target="_blank" rel="noreferrer">
-                <span>IMDb</span><strong>8,5</strong><small>зрители</small>
-              </a>
-              <a class="rating rt" href="https://www.rottentomatoes.com/" target="_blank" rel="noreferrer">
-                <span>Rotten Tomatoes</span><strong>92%</strong><small>критики</small>
-              </a>
-              <a class="rating meta" href="https://www.metacritic.com/" target="_blank" rel="noreferrer">
-                <span>Metacritic</span><strong>79</strong><small>критики</small>
-              </a>
-              <a class="rating kino" href="https://www.kinopoisk.ru/" target="_blank" rel="noreferrer">
-                <span>Кинопоиск</span><strong>8,3</strong><small>зрители</small>
-              </a>
-            </div>
-          </section>
-
-          <section class="release-card" aria-label="Цифровой релиз">
-            <span class="release-icon"><i class="ph ph-play-circle"></i></span>
-            <div>
-              <p>Цифровой релиз</p>
-              <strong>Доступен с 16 апреля 2024</strong>
-              <span>Apple TV · Prime Video · Кинопоиск</span>
-            </div>
-          </section>
-
-          <button id="favorite-button" class="save-button" type="button">
-            <i class="ph ph-bookmark-simple"></i><span>Сохранить в избранное</span>
-          </button>
-          <p id="message" class="message" role="status" aria-live="polite"></p>
-        </div>
-      </article>
+          <div class="movie-content">
+            <div class="title-row"><div><p class="movie-type">Фильм · 2024 · 2 ч 46 мин</p><h2 id="film-name">Дюна: Часть вторая</h2></div><span class="verified" title="Данные проверены"><i class="ph ph-seal-check"></i></span></div>
+            <p class="synopsis">Пол Атрейдес объединяется с Чани и фрименами, чтобы остановить тех, кто разрушил его мир.</p>
+            <section class="rating-section" aria-labelledby="ratings-title">
+              <div class="section-heading"><h3 id="ratings-title">Рейтинги</h3><span>Обновлено сегодня</span></div>
+              <div class="ratings-grid">
+                <a class="rating imdb" href="https://www.imdb.com/" target="_blank" rel="noreferrer"><span>IMDb</span><strong>—</strong><small>загружаем</small></a>
+                <a class="rating critics" href="https://poiskkino.dev/documentation" target="_blank" rel="noreferrer"><span>Кинокритики</span><strong>—</strong><small>загружаем</small></a>
+                <a class="rating tmdb" href="https://www.themoviedb.org/" target="_blank" rel="noreferrer"><span>TMDB</span><strong>—</strong><small>загружаем</small></a>
+                <a class="rating kino" href="https://www.kinopoisk.ru/" target="_blank" rel="noreferrer"><span>Кинопоиск</span><strong>8,3</strong><small>зрители</small></a>
+              </div>
+            </section>
+            <section class="release-card" aria-label="Цифровой релиз"><span class="release-icon"><i class="ph ph-play-circle"></i></span><div><p id="release-label">Цифровой релиз</p><strong id="release-date">Проверяем данные</strong><span id="release-platforms">Платформы загружаются</span><small id="provider-attribution"></small></div></section>
+            <button id="favorite-button" class="save-button" type="button"><i class="ph ph-bookmark-simple"></i><span>Сохранить в избранное</span></button>
+            <p id="message" class="message" role="status" aria-live="polite"></p>
+          </div>
+        </article>
+      </section>
     </main>
+    <template id="result-template">
+      <button class="result-card" type="button"><img src="assets/desert-moon-poster.png" alt="" /><span class="result-copy"><small></small><strong></strong><span></span></span><i class="ph ph-arrow-up-right"></i></button>
+    </template>
+    <template id="favorite-template">
+      <button class="favorite-card" type="button"><span><i class="ph ph-bookmark-simple-fill" aria-hidden="true"></i><strong></strong></span><small></small><i class="ph ph-arrow-up-right" aria-hidden="true"></i></button>
+    </template>
     <script type="module" src="app.js"></script>
   </body>
 </html>
