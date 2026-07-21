@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KinoRadar — избранное</title>
+    <meta name="description" content="Проверяемый агрегатор рейтингов и цифровых релизов." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <a class="brand" href="/">KinoRadar</a>
+        <p>Проверяемый агрегатор рейтингов и цифровых релизов</p>
+      </header>
+
+      <section class="panel" aria-labelledby="favorites-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Моя подборка</p>
+            <h1 id="favorites-title">Избранное</h1>
+          </div>
+          <span id="connection-status" class="status" role="status">Подключение…</span>
+        </div>
+
+        <form id="favorite-form" class="add-form">
+          <label>
+            Название фильма или сериала
+            <input id="title" name="title" required maxlength="160" placeholder="Например, Dune: Part Two" />
+          </label>
+          <label>
+            Год
+            <input id="release-year" name="releaseYear" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="2024" />
+          </label>
+          <button type="submit">Добавить</button>
+        </form>
+
+        <p id="message" class="message" hidden></p>
+        <ul id="favorites-list" class="favorites-list" aria-live="polite"></ul>
+        <p id="empty-state" class="empty-state" hidden>В избранном пока пусто. Добавьте первый фильм.</p>
+      </section>
+    </main>
+
+    <template id="favorite-template">
+      <li class="favorite-card">
+        <div>
+          <h2 class="favorite-title"></h2>
+          <p class="favorite-meta"></p>
+        </div>
+        <button class="remove-button" type="button">Удалить</button>
+      </li>
+    </template>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
