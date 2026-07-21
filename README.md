@@ -8,7 +8,7 @@
 2. В **Authentication → Providers** включите **Anonymous sign-ins**.
 3. В **SQL Editor** выполните содержимое [`supabase/schema.sql`](supabase/schema.sql).
 4. Скопируйте `config.example.js` в `config.js` и укажите URL проекта и publishable/anon key из **Settings → API**.
-5. Добавьте `config.js` в `.gitignore`, если не хотите публиковать конфигурацию. Для GitHub Pages URL и publishable key допустимо публиковать: доступ к данным ограничивается RLS-политиками.
+5. Закоммитьте `config.js`: для GitHub Pages URL и publishable key допустимо публиковать. Доступ к данным ограничивается RLS-политиками.
 
 ## Публикация
 
