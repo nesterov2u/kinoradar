@@ -71,7 +71,7 @@ function renderResults(items, query) {
   for (const item of matches) {
     const card = resultTemplate.content.cloneNode(true); const button = card.querySelector('.result-card');
     button.querySelector('img').src = item.poster || 'assets/desert-moon-poster.png';
-    button.querySelector('small').textContent = item.meta; button.querySelector('strong').textContent = item.title; button.querySelector('.result-copy > span').textContent = item.title === movie.title ? 'IMDb 8,5 · Кинопоиск 8,3' : 'Карточка с рейтингами и релизом';
+    button.querySelector('small').textContent = item.meta; button.querySelector('strong').textContent = item.title; button.querySelector('.result-copy > span').textContent = 'IMDb · Metascore · Кинопоиск';
     button.addEventListener('click', () => showDetails(item)); resultList.append(card);
   }
 }
@@ -86,32 +86,47 @@ async function callMovieService(payload) {
   return response.json();
 }
 function mapMovie(item) {
-  const isSeries = item.type === 'tv-series' || item.type === 'tv';
-  return { title: item.name || item.alternativeName, year: item.year, kind: isSeries ? 'Сериал' : 'Фильм', meta: `${item.year || 'год не указан'} · ${isSeries ? 'сериал' : 'фильм'} · Poiskino`, overview: item.description, poster: item.poster?.url || null, id: item.id };
+  const usesLegacyService = !item.mediaType;
+  const isSeries = item.mediaType === 'tv' || item.type === 'tv-series' || item.type === 'tv';
+  const title = item.title || item.name || item.alternativeName;
+  return {
+    title,
+    year: item.year,
+    kind: isSeries ? 'Сериал' : 'Фильм',
+    meta: `${item.year || 'год не указан'} · ${isSeries ? 'сериал' : 'фильм'} · ${usesLegacyService ? 'каталог' : 'TMDB'}`,
+    overview: item.overview || item.description,
+    poster: item.poster?.url || item.poster || null,
+    id: item.id,
+    mediaType: item.mediaType || (isSeries ? 'tv' : 'movie')
+  };
 }
 async function searchMovies(query) {
-  const { docs = [] } = await callMovieService({ action: 'search', query });
-  return docs.filter(item => item.type === 'movie' || item.type === 'tv-series' || item.type === 'tv').slice(0, 8).map(mapMovie);
+  const response = await callMovieService({ action: 'search', query });
+  const results = response.results ?? response.docs ?? [];
+  return results.slice(0, 8).map(mapMovie);
 }
 function formatDate(date) { return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${date.slice(0, 10)}T00:00:00Z`)); }
 function displayScore(value, digits = 1) { return Number.isFinite(Number(value)) ? Number(value).toFixed(digits).replace('.', ',') : '—'; }
-function setRating(selector, value, caption) { const rating = document.querySelector(selector); rating.querySelector('strong').textContent = displayScore(value); rating.querySelector('small').textContent = Number.isFinite(Number(value)) ? caption : 'нет данных'; }
-function criticsScore(rating) { return Number.isFinite(Number(rating?.filmCritics)) ? rating.filmCritics : Number.isFinite(Number(rating?.russianFilmCritics)) ? Number(rating.russianFilmCritics) / 10 : null; }
+function setRating(selector, value, caption, digits = 1) { const rating = document.querySelector(selector); rating.querySelector('strong').textContent = displayScore(value, digits); rating.querySelector('small').textContent = Number.isFinite(Number(value)) ? caption : 'нет данных'; }
+function setSourceLink(selector, url, fallback) { document.querySelector(selector).href = url || fallback; }
 async function loadMovieDetails(item, requestId) {
   if (!item.id) throw new Error('Movie id is not configured');
-  const details = await callMovieService({ action: 'details', id: item.id });
+  const details = await callMovieService({ action: 'details', id: item.id, mediaType: item.mediaType, title: item.title, year: item.year });
   if (requestId !== detailRequest) return;
-  setRating('.imdb', details.rating?.imdb, 'зрители · Poiskino');
-  setRating('.critics', criticsScore(details.rating), 'критики · Poiskino');
-  setRating('.tmdb', details.rating?.tmdb, 'зрители · Poiskino');
-  setRating('.kino', details.rating?.kp, 'зрители · Poiskino');
-  document.querySelector('.section-heading span').textContent = 'Рейтинги: Poiskino';
-  const date = details.premiere?.digital;
-  const providers = (details.watchability?.items ?? []).map(provider => provider.name).filter((name, index, list) => name && list.indexOf(name) === index).slice(0, 4);
-  document.querySelector('#availability').textContent = date ? 'В цифре' : 'Не подтверждено';
+  const usesLegacyService = !details.ratings && Boolean(details.rating);
+  setRating('.imdb', details.ratings?.imdb?.value ?? details.rating?.imdb, usesLegacyService ? 'зрители · источник обновляется' : 'зрители · OMDb');
+  setRating('.meta', details.ratings?.metascore?.value, 'критики · OMDb', 0);
+  setRating('.kino', details.ratings?.kinopoisk?.value ?? details.rating?.kp, usesLegacyService ? 'зрители · источник обновляется' : 'зрители · Кинопоиск');
+  setSourceLink('.imdb', details.sources?.imdbUrl, 'https://www.imdb.com/');
+  setSourceLink('.meta', details.sources?.metacriticUrl, 'https://www.metacritic.com/');
+  setSourceLink('.kino', details.sources?.kinopoiskUrl, 'https://www.kinopoisk.ru/');
+  document.querySelector('.section-heading span').textContent = usesLegacyService ? 'Источники обновляются' : 'Кинопоиск · OMDb';
+  const date = details.release?.digitalDate ?? details.premiere?.digital;
+  const providers = details.release?.providers ?? (details.watchability?.items ?? []).map(provider => provider.name).filter((name, index, list) => name && list.indexOf(name) === index).slice(0, 4);
+  document.querySelector('#availability').textContent = details.release?.status || (date ? 'В цифровом релизе' : 'Не подтверждено');
   document.querySelector('#release-date').textContent = date ? `Доступен с ${formatDate(date)}` : 'Не подтверждено';
   document.querySelector('#release-platforms').textContent = providers.length ? providers.join(' · ') : 'Нет данных о платформах';
-  document.querySelector('#provider-attribution').textContent = 'Данные: Poiskino';
+  document.querySelector('#provider-attribution').textContent = usesLegacyService ? 'Источники обновляются' : (date || providers.length ? 'Дата: TMDB · Платформы: JustWatch' : 'Данные: TMDB');
 }
 async function ensureSession() { const { data: { session }, error } = await supabase.auth.getSession(); if (error) throw error; if (!session) { const { error: signInError } = await supabase.auth.signInAnonymously(); if (signInError) throw signInError; } }
 async function checkFavorite() { const { data, error } = await supabase.from('favorites').select('id').eq('title', movie.title).eq('release_year', movie.release_year).maybeSingle(); if (error) throw error; favoriteId = data?.id ?? null; paintSaved(Boolean(favoriteId)); }
@@ -128,7 +143,12 @@ async function loadFavoriteRatings(entry) {
   const matches = await searchMovies(entry.title);
   const item = matches?.find(candidate => candidate.title.toLowerCase() === entry.title.toLowerCase() && Number(candidate.year) === Number(entry.release_year)) || matches?.find(candidate => candidate.title.toLowerCase() === entry.title.toLowerCase());
   if (!item?.id) return null;
-  const rating = (await callMovieService({ action: 'details', id: item.id }))?.rating ?? null;
+  const details = await callMovieService({ action: 'details', id: item.id, mediaType: item.mediaType, title: item.title, year: item.year });
+  const rating = details.ratings ?? (details.rating ? {
+    imdb: { value: details.rating.imdb },
+    metascore: { value: null },
+    kinopoisk: { value: details.rating.kp }
+  } : null);
   favoriteRatingsCache.set(cacheKey, rating);
   return rating;
 }
@@ -147,10 +167,9 @@ function renderFavorites(entries) {
     loadFavoriteRatings(entry).then(rating => {
       if (!rating || !button.isConnected) { caption.textContent = entry.release_year ? `${entry.release_year} · Открыть карточку` : 'Открыть карточку'; return; }
       const scores = [];
-      if (Number.isFinite(Number(rating.kp))) scores.push(`КП ${displayScore(rating.kp)}`);
-      if (Number.isFinite(Number(rating.imdb))) scores.push(`IMDb ${displayScore(rating.imdb)}`);
-      const critics = Number.isFinite(Number(rating.filmCritics)) ? rating.filmCritics : Number.isFinite(Number(rating.russianFilmCritics)) ? Number(rating.russianFilmCritics) / 10 : null;
-      if (critics !== null) scores.push(`Критики ${displayScore(critics)}`);
+      if (Number.isFinite(Number(rating.kinopoisk?.value))) scores.push(`КП ${displayScore(rating.kinopoisk.value)}`);
+      if (Number.isFinite(Number(rating.imdb?.value))) scores.push(`IMDb ${displayScore(rating.imdb.value)}`);
+      if (Number.isFinite(Number(rating.metascore?.value))) scores.push(`Meta ${displayScore(rating.metascore.value, 0)}`);
       caption.textContent = [entry.release_year, scores.join(' · ') || 'Открыть карточку'].filter(Boolean).join(' · ');
     }).catch(error => { console.error(error); if (button.isConnected) caption.textContent = entry.release_year ? `${entry.release_year} · Открыть карточку` : 'Открыть карточку'; });
   }
