@@ -42,10 +42,40 @@ function yearFromDate(value: unknown) {
     : null;
 }
 
-function imageUrl(path: unknown) {
+function imageUrl(path: unknown, size = "w342") {
   return typeof path === "string" && path
-    ? `https://image.tmdb.org/t/p/w342${path}`
+    ? `https://image.tmdb.org/t/p/${size}${path}`
     : null;
+}
+
+function castFrom(payload: Record<string, unknown> | null) {
+  const cast = Array.isArray(payload?.cast)
+    ? payload.cast as Array<Record<string, unknown>>
+    : [];
+
+  return cast
+    .filter((person) => typeof person.name === "string")
+    .sort((first, second) =>
+      Number(first.order ?? 999) - Number(second.order ?? 999)
+    )
+    .slice(0, 4)
+    .map((person) => {
+      const roles = Array.isArray(person.roles)
+        ? person.roles as Array<Record<string, unknown>>
+        : [];
+      const aggregateCharacter = roles.find((role) =>
+        typeof role.character === "string" && role.character
+      )?.character;
+      return {
+        name: person.name,
+        character: typeof person.character === "string"
+          ? person.character
+          : typeof aggregateCharacter === "string"
+          ? aggregateCharacter
+          : null,
+        profile: imageUrl(person.profile_path, "w185"),
+      };
+    });
 }
 
 function pickFirst<T>(items: T[] | undefined) {
@@ -214,14 +244,18 @@ Deno.serve(async (request) => {
       return response(request, { error: "Invalid title id" }, 400);
     }
 
-    const [details, externalIds, releases, watchProviders] = await Promise.all([
-      tmdb(`/${mediaType}/${id}`, { language: "ru-RU" }),
-      tmdb(`/${mediaType}/${id}/external_ids`),
-      mediaType === "movie"
-        ? tmdb(`/movie/${id}/release_dates`)
-        : Promise.resolve(null),
-      tmdb(`/${mediaType}/${id}/watch/providers`),
-    ]);
+    const [details, externalIds, releases, watchProviders, credits] =
+      await Promise.all([
+        tmdb(`/${mediaType}/${id}`, { language: "ru-RU" }),
+        tmdb(`/${mediaType}/${id}/external_ids`),
+        mediaType === "movie"
+          ? tmdb(`/movie/${id}/release_dates`)
+          : Promise.resolve(null),
+        tmdb(`/${mediaType}/${id}/watch/providers`),
+        mediaType === "tv"
+          ? tmdb(`/tv/${id}/aggregate_credits`, { language: "ru-RU" })
+          : tmdb(`/movie/${id}/credits`, { language: "ru-RU" }),
+      ]);
     if (!details) return response(request, { error: "Title not found" }, 404);
 
     const imdbId = typeof externalIds?.imdb_id === "string"
@@ -267,6 +301,7 @@ Deno.serve(async (request) => {
 
     return response(request, {
       title: details.title ?? details.name,
+      cast: castFrom(credits),
       ratings: {
         imdb: {
           value: numberOrNull(omdb?.imdbRating),

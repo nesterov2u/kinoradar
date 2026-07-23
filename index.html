@@ -4,8 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f5f5f7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="KinoRadar" />
     <title>KinoRadar — рейтинги без догадок</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/app-icon-180.png" sizes="180x180" />
+    <link rel="manifest" href="site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -53,14 +57,18 @@
             <span id="availability" class="availability">Проверяем</span>
           </div>
           <div class="movie-content">
-            <div class="title-row"><div><p class="movie-type">Фильм · 2024 · 2 ч 46 мин</p><h2 id="film-name">Дюна: Часть вторая</h2></div><span class="verified" title="Данные проверены"><i class="ph ph-seal-check"></i></span></div>
+            <div class="title-row"><div><p class="movie-type">Фильм · 2024 · 2 ч 46 мин</p><h2 id="film-name">Дюна: Часть вторая</h2></div></div>
             <p class="synopsis">Пол Атрейдес объединяется с Чани и фрименами, чтобы остановить тех, кто разрушил его мир.</p>
+            <section id="cast-section" class="cast-section" aria-labelledby="cast-title" hidden>
+              <div class="section-heading"><h3 id="cast-title">В главных ролях</h3><span>TMDB</span></div>
+              <div id="cast-list" class="cast-list"></div>
+            </section>
             <section class="rating-section" aria-labelledby="ratings-title">
-              <div class="section-heading"><h3 id="ratings-title">Рейтинги</h3><span>Обновлено сегодня</span></div>
+              <div class="section-heading"><h3 id="ratings-title">Рейтинги</h3></div>
               <div class="ratings-grid">
-                <a class="rating imdb" href="https://www.imdb.com/" target="_blank" rel="noreferrer"><span>IMDb</span><strong>—</strong><small>загружаем</small></a>
-                <a class="rating meta" href="https://www.metacritic.com/" target="_blank" rel="noreferrer"><span>Metascore</span><strong>—</strong><small>загружаем</small></a>
-                <a class="rating kino" href="https://www.kinopoisk.ru/" target="_blank" rel="noreferrer"><span>Кинопоиск</span><strong>8,3</strong><small>зрители</small></a>
+                <a class="rating imdb" href="https://www.imdb.com/" target="_blank" rel="noreferrer"><span>IMDb</span><strong>—</strong></a>
+                <a class="rating meta" href="https://www.metacritic.com/" target="_blank" rel="noreferrer"><span>Metascore</span><strong>—</strong></a>
+                <a class="rating kino" href="https://www.kinopoisk.ru/" target="_blank" rel="noreferrer"><span>Кинопоиск</span><strong>8,3</strong></a>
               </div>
             </section>
             <section class="release-card" aria-label="Цифровой релиз"><span class="release-icon"><i class="ph ph-play-circle"></i></span><div><p id="release-label">Цифровой релиз</p><strong id="release-date">Проверяем данные</strong><span id="release-platforms">Платформы загружаются</span><small id="provider-attribution"></small></div></section>
