@@ -78,6 +78,39 @@ function castFrom(payload: Record<string, unknown> | null) {
     });
 }
 
+function directorFrom(
+  details: Record<string, unknown>,
+  credits: Record<string, unknown> | null,
+  mediaType: MediaType,
+) {
+  if (mediaType === "tv") {
+    const creators = Array.isArray(details.created_by)
+      ? details.created_by as Array<Record<string, unknown>>
+      : [];
+    const names = creators.map((person) => person.name).filter((
+      name,
+    ): name is string => typeof name === "string").slice(0, 2);
+    if (!names.length) return null;
+    return {
+      label: names.length > 1 ? "Создатели" : "Создатель",
+      name: names.join(" · "),
+    };
+  }
+
+  const crew = Array.isArray(credits?.crew)
+    ? credits.crew as Array<Record<string, unknown>>
+    : [];
+  const names = crew.filter((person) => person.job === "Director").map((
+    person,
+  ) => person.name).filter((name): name is string => typeof name === "string")
+    .filter((name, index, list) => list.indexOf(name) === index).slice(0, 2);
+  if (!names.length) return null;
+  return {
+    label: names.length > 1 ? "Режиссёры" : "Режиссёр",
+    name: names.join(" · "),
+  };
+}
+
 function pickFirst<T>(items: T[] | undefined) {
   return Array.isArray(items) ? items[0] ?? null : null;
 }
@@ -301,6 +334,7 @@ Deno.serve(async (request) => {
 
     return response(request, {
       title: details.title ?? details.name,
+      director: directorFrom(details, credits, mediaType),
       cast: castFrom(credits),
       ratings: {
         imdb: {

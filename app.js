@@ -25,6 +25,9 @@ const favoriteTemplate = document.querySelector('#favorite-template');
 const favoriteButton = document.querySelector('#favorite-button');
 const favoritesButton = document.querySelector('#favorites-button');
 const message = document.querySelector('#message');
+const director = document.querySelector('#director');
+const directorLabel = document.querySelector('#director-label');
+const directorName = document.querySelector('#director-name');
 const castSection = document.querySelector('#cast-section');
 const castList = document.querySelector('#cast-list');
 let favoriteId = null;
@@ -35,6 +38,8 @@ const favoriteRatingsCache = new Map();
 function setMessage(text = '') { message.textContent = text; }
 function paintSaved(saved) { favoriteButton.classList.toggle('is-saved', saved); favoriteButton.querySelector('i').className = saved ? 'ph ph-bookmark-simple-fill' : 'ph ph-bookmark-simple'; favoriteButton.querySelector('span').textContent = saved ? 'В избранном' : 'Сохранить в избранное'; }
 function reveal(view) { view.classList.remove('view-fade'); void view.offsetWidth; view.classList.add('view-fade'); }
+function clearDirector() { director.hidden = true; directorName.textContent = ''; }
+function renderDirector(person) { clearDirector(); if (!person?.name) return; directorLabel.textContent = person.label || 'Режиссёр'; directorName.textContent = person.name; director.hidden = false; }
 function clearCast() { castSection.hidden = true; castList.replaceChildren(); }
 function renderCast(cast) {
   clearCast();
@@ -71,6 +76,7 @@ function showDetails(item, origin = 'search') {
     delete document.querySelector('#release-date').dataset.source;
     document.querySelector('#release-platforms').textContent = 'Платформы загружаются';
     document.querySelector('#provider-attribution').textContent = '';
+    clearDirector();
     clearCast();
     loadMovieDetails(item, requestId).catch(error => { console.error(error); if (requestId === detailRequest) { document.querySelector('#availability').textContent = 'Не подтверждено'; document.querySelector('#release-date').textContent = 'Не подтверждено'; document.querySelector('#release-platforms').textContent = 'Нет данных о платформах'; } });
     checkFavorite().catch(() => {});
@@ -135,6 +141,7 @@ async function loadMovieDetails(item, requestId) {
   setSourceLink('.imdb', details.sources?.imdbUrl, 'https://www.imdb.com/');
   setSourceLink('.meta', details.sources?.metacriticUrl, 'https://www.metacritic.com/');
   setSourceLink('.kino', details.sources?.kinopoiskUrl, 'https://www.kinopoisk.ru/');
+  renderDirector(details.director);
   renderCast(details.cast);
   const date = details.release?.digitalDate ?? details.premiere?.digital;
   const providers = details.release?.providers ?? (details.watchability?.items ?? []).map(provider => provider.name).filter((name, index, list) => name && list.indexOf(name) === index).slice(0, 4);
